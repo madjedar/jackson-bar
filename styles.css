@@ -71,7 +71,7 @@ html, body {
     }
 }
 
-/* Subtle gradient: 100% transparent top where face & cups are, gently darker near courses */
+/* Subtle gradient: 100% transparent top where face & cups are, transparent & clear throughout */
 .bg-container::after {
     content: '';
     position: absolute;
@@ -81,9 +81,9 @@ html, body {
     height: 100%;
     background: linear-gradient(to bottom, 
         rgba(0,0,0,0) 0%, 
-        rgba(0,0,0,0) 45%, 
-        rgba(0,0,0,0.45) 75%, 
-        rgba(0,0,0,0.8) 100%
+        rgba(0,0,0,0) 55%, 
+        rgba(0,0,0,0.15) 80%, 
+        rgba(0,0,0,0.32) 100%
     );
     pointer-events: none;
     z-index: 1;
@@ -128,22 +128,22 @@ html, body {
     gap: 16px;
 }
 
-/* Glassmorphic Top Featured Video Player Window */
+/* Glassmorphic Transparent Top Featured Video Player Window */
 .hero-video-window {
     width: 100%;
     max-width: 660px;
-    background: rgba(12, 12, 18, 0.78);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(10, 10, 16, 0.22);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.22);
     border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.85), -6px 0 25px rgba(255, 122, 0, 0.1), 6px 0 25px rgba(0, 180, 216, 0.1);
+    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.45), -6px 0 25px rgba(255, 122, 0, 0.12), 6px 0 25px rgba(0, 180, 216, 0.12);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .hero-video-window:hover {
-    box-shadow: 0 20px 55px rgba(0, 0, 0, 0.9), -8px 0 30px rgba(255, 122, 0, 0.18), 8px 0 30px rgba(0, 180, 216, 0.18);
+    box-shadow: 0 20px 55px rgba(0, 0, 0, 0.6), -8px 0 30px rgba(255, 122, 0, 0.2), 8px 0 30px rgba(0, 180, 216, 0.2);
 }
 
 .video-window-header {
@@ -151,8 +151,8 @@ html, body {
     align-items: center;
     justify-content: space-between;
     padding: 10px 16px;
-    background: rgba(255, 255, 255, 0.04);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.28);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .window-dots {
@@ -178,14 +178,15 @@ html, body {
     align-items: center;
     gap: 7px;
     letter-spacing: 0.3px;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
 }
 
 .window-badge {
     font-size: 0.72rem;
     font-weight: 800;
     color: #00d2ff;
-    background: rgba(0, 210, 255, 0.12);
-    border: 1px solid rgba(0, 210, 255, 0.3);
+    background: rgba(0, 210, 255, 0.16);
+    border: 1px solid rgba(0, 210, 255, 0.35);
     padding: 2px 9px;
     border-radius: 12px;
     display: inline-flex;
@@ -198,7 +199,7 @@ html, body {
 .video-player-frame {
     position: relative;
     width: 100%;
-    background: #000000;
+    background: rgba(0, 0, 0, 0.15);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -209,7 +210,7 @@ html, body {
     max-height: 380px;
     display: block;
     object-fit: cover;
-    background: #000;
+    background: transparent;
 }
 
 .hero-scroll-pill {
@@ -218,16 +219,16 @@ html, body {
     gap: 8px;
     padding: 10px 22px;
     border-radius: 30px;
-    background: rgba(12, 12, 18, 0.72);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    background: rgba(10, 10, 16, 0.25);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: #ffffff;
     font-size: 0.88rem;
     font-weight: 700;
     text-decoration: none;
     letter-spacing: 0.5px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     transition: all 0.25s ease;
     animation: bounceSubtle 2.2s infinite ease-in-out;
 }
@@ -331,10 +332,10 @@ html, body {
 /* Base Course Card */
 .course-card {
     width: 100%;
-    background: rgba(14, 14, 20, 0.72);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(10, 10, 16, 0.22);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 20px;
     padding: 24px 20px;
     display: flex;
@@ -342,7 +343,7 @@ html, body {
     justify-content: space-between;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
     transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
@@ -527,13 +528,13 @@ html, body {
 /* 1. Course 1: Inspired by Left Spilling Orange Cocktail */
 .course-card-orange {
     border-color: rgba(255, 122, 0, 0.35);
-    background: radial-gradient(circle at top left, rgba(255, 122, 0, 0.09) 0%, rgba(14, 14, 20, 0.75) 65%);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 25px rgba(255, 122, 0, 0.08);
+    background: radial-gradient(circle at top left, rgba(255, 122, 0, 0.1) 0%, rgba(10, 10, 16, 0.22) 65%);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 25px rgba(255, 122, 0, 0.08);
 }
 
 .course-card-orange:hover {
     border-color: rgba(255, 133, 0, 0.65);
-    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(255, 122, 0, 0.22);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), 0 0 30px rgba(255, 122, 0, 0.22);
 }
 
 .price-orange {
@@ -557,13 +558,13 @@ html, body {
 /* 2. Course 2: Inspired by Right Spilling Blue Cocktail */
 .course-card-blue {
     border-color: rgba(0, 180, 216, 0.35);
-    background: radial-gradient(circle at top right, rgba(0, 180, 216, 0.09) 0%, rgba(14, 14, 20, 0.75) 65%);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 25px rgba(0, 180, 216, 0.08);
+    background: radial-gradient(circle at top right, rgba(0, 180, 216, 0.1) 0%, rgba(10, 10, 16, 0.22) 65%);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 25px rgba(0, 180, 216, 0.08);
 }
 
 .course-card-blue:hover {
     border-color: rgba(0, 210, 255, 0.65);
-    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 210, 255, 0.22);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), 0 0 30px rgba(0, 210, 255, 0.22);
 }
 
 .price-blue {
@@ -590,9 +591,9 @@ html, body {
     align-items: center;
     text-align: center;
     min-height: 160px;
-    background: radial-gradient(circle at center, rgba(255, 215, 0, 0.06) 0%, rgba(12, 12, 16, 0.88) 70%);
+    background: radial-gradient(circle at center, rgba(255, 215, 0, 0.06) 0%, rgba(10, 10, 16, 0.26) 70%);
     border: 1px solid rgba(255, 215, 0, 0.3);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 25px rgba(255, 215, 0, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 25px rgba(255, 215, 0, 0.1);
 }
 
 @media (min-width: 660px) {
@@ -704,13 +705,13 @@ html, body {
 
 .enroll-card {
     width: 100%;
-    background: rgba(14, 14, 20, 0.78);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(10, 10, 16, 0.24);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 22px;
     padding: 26px 22px;
-    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.8), -10px 0 35px rgba(255, 122, 0, 0.12), 10px 0 35px rgba(0, 180, 216, 0.12);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5), -10px 0 35px rgba(255, 122, 0, 0.1), 10px 0 35px rgba(0, 180, 216, 0.1);
     position: relative;
     transition: box-shadow 0.3s, border-color 0.3s;
 }
@@ -1101,11 +1102,13 @@ select.form-control option {
     max-width: 700px;
     max-height: 90vh;
     overflow-y: auto;
-    background: #0d0d12;
+    background: rgba(13, 13, 18, 0.78);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 24px;
     padding: 28px 24px;
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), 0 0 35px rgba(0, 180, 216, 0.12), 0 0 35px rgba(255, 122, 0, 0.1);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(0, 180, 216, 0.12), 0 0 35px rgba(255, 122, 0, 0.1);
     animation: modalSlideUp 0.25s ease-out;
 }
 
