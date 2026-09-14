@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jackson Bar - Admin Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="admin-body">
+
+    <!-- Fixed Background Video (same atmospheric loop) -->
+    <div class="bg-container">
+        <video class="bg-video-main" autoplay loop muted playsinline>
+            <source src="assets/bg-video.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <!-- Admin Wrapper -->
+    <div class="admin-layout">
+        <!-- Admin Top Navigation -->
+        <header class="admin-header">
+            <div class="admin-brand-group">
+                <a href="index.html" class="admin-back-btn" title="Return to Main Website">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <div class="admin-title-area">
+                    <div class="admin-badge-pill"><i class="fas fa-shield-alt"></i> MANAGEMENT PORTAL</div>
+                    <h1 class="admin-main-title">Course Registrations</h1>
+                </div>
+            </div>
+            <div class="admin-nav-actions">
+                <a href="index.html" class="nav-btn-secondary">
+                    <i class="fas fa-external-link-alt"></i>
+                    <span>View Website</span>
+                </a>
+                <button id="btn-create-sample" class="nav-btn-primary" title="Add a sample order to test">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>+ Test Order</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- KPI Metrics Row -->
+        <section class="admin-metrics-grid">
+            <!-- Card 1: Total Orders -->
+            <div class="metric-card">
+                <div class="metric-icon-box cyan">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="metric-info">
+                    <span class="metric-label">Total Enrollments</span>
+                    <h2 class="metric-value" id="metric-total-orders">0</h2>
+                </div>
+            </div>
+
+            <!-- Card 2: Pending Orders -->
+            <div class="metric-card">
+                <div class="metric-icon-box orange">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="metric-info">
+                    <span class="metric-label">Pending Review</span>
+                    <h2 class="metric-value" id="metric-pending-orders">0</h2>
+                </div>
+            </div>
+
+            <!-- Card 3: Confirmed Students -->
+            <div class="metric-card">
+                <div class="metric-icon-box green">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="metric-info">
+                    <span class="metric-label">Confirmed Seats</span>
+                    <h2 class="metric-value" id="metric-confirmed-orders">0</h2>
+                </div>
+            </div>
+
+            <!-- Card 4: Potential Revenue -->
+            <div class="metric-card">
+                <div class="metric-icon-box gold">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <div class="metric-info">
+                    <span class="metric-label">Total Value</span>
+                    <h2 class="metric-value" id="metric-total-revenue">0 DZD</h2>
+                </div>
+            </div>
+        </section>
+
+        <!-- Orders Table & Management Section -->
+        <main class="admin-content-card">
+            <!-- Table Header & Controls -->
+            <div class="card-toolbar">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="order-search" placeholder="Search by student name or phone...">
+                </div>
+
+                <div class="filter-controls">
+                    <div class="select-wrapper">
+                        <select id="course-filter" class="filter-select">
+                            <option value="ALL">All Courses</option>
+                            <option value="Classic Bar">Classic Bar</option>
+                            <option value="Extra Barman">Extra Barman</option>
+                        </select>
+                    </div>
+
+                    <div class="select-wrapper">
+                        <select id="status-filter" class="filter-select">
+                            <option value="ALL">All Statuses</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Confirmed">Confirmed</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </div>
+
+                    <button id="btn-refresh" class="btn-icon" title="Refresh list">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button id="btn-clear-all" class="btn-icon danger" title="Clear all orders">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Orders Container (Cards / Responsive Table) -->
+            <div id="orders-container" class="orders-list">
+                <!-- Injected dynamically via JS -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="orders-empty" class="empty-state" style="display: none;">
+                <div class="empty-icon-ring">
+                    <i class="fas fa-inbox"></i>
+                </div>
+                <h3>No Course Orders Yet</h3>
+                <p>When a visitor completes the enrollment form on the website, their order will appear here with student name, phone number, and selected course.</p>
+                <div class="empty-actions">
+                    <a href="index.html" class="nav-btn-secondary">Open Main Site to Enroll</a>
+                    <button id="btn-empty-sample" class="nav-btn-primary">+ Add Test Registration</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notification for new events -->
+    <div id="admin-toast" class="admin-toast">
+        <i class="fas fa-bell toast-icon"></i>
+        <span id="toast-message">Order updated successfully</span>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

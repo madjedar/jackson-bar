@@ -1,0 +1,19 @@
+{
+  "name": "jackson-bar",
+  "version": "1.0.0",
+  "description": "Jackson Bar - Professional Cocktail & Barista Academy Platform",
+  "main": "index.html",
+  "scripts": {
+    "start": "python server.py 8000",
+    "dev": "python server.py 8000"
+  },
+  "keywords": [
+    "barista",
+    "cocktails",
+    "academy",
+    "hospitality",
+    "algeria"
+  ],
+  "author": "Jackson Bar Academy",
+  "license": "ISC"
+}

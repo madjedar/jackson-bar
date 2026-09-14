@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Local database & temp uploads (keep sample assets)
+scratch/
+*.log
+.gemini/
+__pycache__/
+
+# Vercel & IDE
+.vercel
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

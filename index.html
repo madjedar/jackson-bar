@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jackson Bar - Professional Barista Courses</title>
+    <link rel="stylesheet" href="styles.css?v=20260914_08">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Audio Player (Hidden, auto-play managed by JS) -->
+    <!-- Ideally, this source should point to a local 'billie_jean.mp3' or a hosted version -->
+    <!-- For demonstration, pointing to a free placeholder audio if local file is missing, but simulating the behavior requested. -->
+    <audio id="bg-audio" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- Fixed Background Video (loops forever) -->
+    <div class="bg-container">
+        <!-- The user's video — loops seamlessly as full-screen background -->
+        <video class="bg-video-main" autoplay loop muted playsinline>
+            <source src="assets/bg-video.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <!-- Floating Music Toggle Button (discreetly placed in bottom-right corner) -->
+    <button id="music-toggle" class="music-toggle" title="Toggle Music">
+        <i class="fas fa-volume-up"></i>
+    </button>
+
+    <!-- Main Content -->
+    <main class="content">
+        <!-- Open Hero Showcase with Dedicated Featured Video Player -->
+        <section class="hero-showcase">
+            <div class="hero-video-window" id="hero-video-window">
+                <div class="video-window-header">
+                    <div class="window-dots">
+                        <span class="dot dot-red"></span>
+                        <span class="dot dot-yellow"></span>
+                        <span class="dot dot-green"></span>
+                    </div>
+                    <span class="window-title"><i class="fas fa-play-circle icon-orange"></i> Academy Intro Video</span>
+                    <span class="window-badge"><i class="fas fa-bolt icon-blue"></i> 4K Barcraft</span>
+                </div>
+                <div class="video-player-frame">
+                    <video id="top-featured-video" playsinline controls preload="metadata" poster="assets/course-classic-bar.jpg">
+                        <source src="assets/bg-video.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+            <a href="#courses-section" class="hero-scroll-pill" title="Explore Barista Courses">
+                <span>Explore Courses</span>
+                <i class="fas fa-chevron-down"></i>
+            </a>
+        </section>
+
+        <!-- Courses Section -->
+        <section class="courses-section" id="courses-section">
+            <h2 class="section-title">Drinks of the Four Corners of the World</h2>
+            
+            <div class="course-grid">
+                <!-- Course 1 (Classic Bar - Professional Barista & Classic Mixology) -->
+                <div class="course-card course-card-orange">
+                    <div class="course-media-wrap">
+                        <img id="course-1-img" src="assets/course-classic-bar.jpg" alt="Classic Barista Course" class="course-img" loading="lazy">
+                        <span class="course-media-badge"><i class="fas fa-certificate icon-orange"></i> Certified Barista</span>
+                    </div>
+
+                    <div class="card-header">
+                        <h3><i class="fas fa-cocktail icon-orange"></i> Classic Bar</h3>
+                        <span class="duration"><i class="far fa-clock"></i> 6 hours Intensive</span>
+                    </div>
+                    <div class="card-price price-orange">
+                        15,000 DZD <span>(1.5 million centimes)</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="course-summary-lead">Foundational barista mastery & specialty beverage craftsmanship designed for immediate café employment and business launch.</p>
+                        
+                        <ul class="course-feature-list">
+                            <li><i class="fas fa-check-circle icon-orange"></i> <strong>Espresso Science:</strong> Dose calibration, grind particle size & extraction yield.</li>
+                            <li><i class="fas fa-check-circle icon-orange"></i> <strong>Latte Art Mastery:</strong> Silk microfoam steaming, hearts, tulips & rosette patterns.</li>
+                            <li><i class="fas fa-check-circle icon-orange"></i> <strong>60+ Hot & Cold Drinks:</strong> Iced frappés, specialty brews, artisanal mojitos & fruit mocktails.</li>
+                            <li><i class="fas fa-check-circle icon-orange"></i> <strong>Machine Care & Speed:</strong> Commercial espresso machine hygiene & rapid bar workflow.</li>
+                        </ul>
+
+                        <div class="syllabus-tags-wrap">
+                            <span class="syllabus-tag">☕ Espresso Lab</span>
+                            <span class="syllabus-tag">🎨 Latte Art</span>
+                            <span class="syllabus-tag">🧊 60+ Recipes</span>
+                            <span class="syllabus-tag">📜 Certificate</span>
+                        </div>
+                    </div>
+                    <button class="enroll-btn btn-orange" data-course="Classic Bar" data-price="15,000 DZD">
+                        <i class="fas fa-edit"></i> Enroll in Classic Bar
+                    </button>
+                </div>
+
+                <!-- Course 2 (Extra Barman - Master Mixologist & Flair Showmanship) -->
+                <div class="course-card course-card-blue">
+                    <div class="course-media-wrap">
+                        <img id="course-2-img" src="assets/course-extra-barman.jpg" alt="Extra Barman Mixology Course" class="course-img" loading="lazy">
+                        <span class="course-media-badge"><i class="fas fa-award icon-blue"></i> Master Diploma</span>
+                    </div>
+
+                    <div class="card-header">
+                        <h3><i class="fas fa-wine-glass-alt icon-blue"></i> Extra Barman</h3>
+                        <span class="duration"><i class="far fa-clock"></i> 8 hours Masterclass</span>
+                    </div>
+                    <div class="card-price price-blue">
+                        20,000 DZD <span>(2 million centimes)</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="course-summary-lead">Elite mixology and showmanship training for aspiring lounge head bartenders, hotel baristas, and flair artists.</p>
+                        
+                        <ul class="course-feature-list">
+                            <li><i class="fas fa-check-circle icon-blue"></i> <strong>80+ Signature Cocktails:</strong> Multi-layered drinks, fruit reductions, infused syrups & exotic elixirs.</li>
+                            <li><i class="fas fa-check-circle icon-blue"></i> <strong>Flair Bartending Craft:</strong> Shaker tin manipulation, bottle spinning, ice tosses & stage presence.</li>
+                            <li><i class="fas fa-check-circle icon-blue"></i> <strong>Molecular Mixology:</strong> Smoke bubble gun cloches, dry ice presentation & color-shift chemistry.</li>
+                            <li><i class="fas fa-check-circle icon-blue"></i> <strong>Bar Management:</strong> Recipe costing, drink margins, bar station ergonomics & VIP hospitality.</li>
+                        </ul>
+
+                        <div class="syllabus-tags-wrap">
+                            <span class="syllabus-tag">🍸 80+ Cocktails</span>
+                            <span class="syllabus-tag">🌪️ Flair Show</span>
+                            <span class="syllabus-tag">💨 Molecular Bar</span>
+                            <span class="syllabus-tag">🏆 Master Diploma</span>
+                        </div>
+                    </div>
+                    <button class="enroll-btn btn-blue" data-course="Extra Barman" data-price="20,000 DZD">
+                        <i class="fas fa-edit"></i> Enroll in Extra Barman
+                    </button>
+                </div>
+
+                <!-- Course 3 (Locked VIP Masterclass) -->
+                <div class="course-card course-card-gold locked">
+                    <div class="lock-overlay">
+                        <i class="fas fa-crown lock-icon icon-gold"></i>
+                        <span class="badge">Coming Soon</span>
+                    </div>
+                    <div class="card-header">
+                        <h3>Golden Barman Masterclass</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- COURSE REGISTRATION FORM SECTION (DIRECTLY ON PAGE) -->
+        <!-- ================================================================= -->
+        <section class="enroll-section" id="enroll-section">
+            <div class="section-title-wrap">
+                <span class="section-badge"><i class="fas fa-graduation-cap icon-green"></i> Fast Registration</span>
+                <h2 class="section-title">Sign Up for Your Course</h2>
+                <p class="section-desc">Enter your name and phone number to reserve your seat immediately</p>
+            </div>
+
+            <!-- Form Card (Glass window matching video ambience) -->
+            <div class="enroll-card" id="enroll-form-card">
+                <!-- Registration Form -->
+                <form id="inline-enroll-form" class="enrollment-form" novalidate>
+                    <!-- Course Selection -->
+                    <div class="form-group">
+                        <label for="inline-course-select"><i class="fas fa-cocktail icon-orange"></i> Choose Course</label>
+                        <div class="input-icon-wrapper">
+                            <select id="inline-course-select" class="form-control">
+                                <option value="Classic Bar" data-price="15,000 DZD">Classic Bar — 15,000 DZD (1.5M centimes)</option>
+                                <option value="Extra Barman" data-price="20,000 DZD">Extra Barman — 20,000 DZD (2M centimes)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Responsive 2-Column Grid on PC, Single Column on Phone -->
+                    <div class="form-grid-2">
+                        <!-- Full Name -->
+                        <div class="form-group">
+                            <label for="inline-student-name"><i class="fas fa-user icon-blue"></i> Full Name <span class="required">*</span></label>
+                            <div class="input-icon-wrapper">
+                                <input type="text" id="inline-student-name" class="form-control" placeholder="Full Name" required autocomplete="name">
+                            </div>
+                            <span class="field-error" id="inline-name-error">Please enter your name</span>
+                        </div>
+
+                        <!-- Phone Number -->
+                        <div class="form-group">
+                            <label for="inline-student-phone"><i class="fas fa-phone-alt icon-green"></i> Phone Number <span class="required">*</span></label>
+                            <div class="input-icon-wrapper">
+                                <input type="tel" id="inline-student-phone" class="form-control" placeholder="Phone Number" required autocomplete="tel">
+                            </div>
+                            <span class="field-error" id="inline-phone-error">Please enter your phone number</span>
+                        </div>
+                    </div>
+
+                    <!-- Tuition & Assurance Box -->
+                    <div class="enroll-summary-box">
+                        <div class="summary-row">
+                            <span>Selected Course Tuition:</span>
+                            <strong id="inline-price-display" class="price-highlight">15,000 DZD</strong>
+                        </div>
+                        <div class="guarantee-note">
+                            <i class="fas fa-shield-alt icon-green"></i> No online payment required now. Our team will contact you directly to confirm your schedule.
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="button" id="inline-submit-btn" class="modal-submit-btn">
+                        <span>Confirm & Submit Order</span>
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                </form>
+
+                <!-- Success Confirmation Ticket (Appears right after submitting) -->
+                <div id="inline-success-card" class="success-view" style="display: none;">
+                    <div class="success-icon-ring">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <h3 class="success-title">Order Placed Successfully!</h3>
+                    <p class="success-desc">Your enrollment request has been registered in the system.</p>
+                    
+                    <div class="order-ticket">
+                        <div class="ticket-row">
+                            <span>Order Reference:</span>
+                            <strong id="ticket-order-id" class="neon-text">#JB-8492</strong>
+                        </div>
+                        <div class="ticket-row">
+                            <span>Student Name:</span>
+                            <strong id="ticket-student-name">--</strong>
+                        </div>
+                        <div class="ticket-row">
+                            <span>Phone Number:</span>
+                            <strong id="ticket-student-phone">--</strong>
+                        </div>
+                        <div class="ticket-row">
+                            <span>Course Type:</span>
+                            <strong id="ticket-course-name">--</strong>
+                        </div>
+                        <div class="ticket-row">
+                            <span>Price:</span>
+                            <strong id="ticket-price-name" style="color: var(--primary-neon);">--</strong>
+                        </div>
+                    </div>
+
+                    <div class="whatsapp-alert">
+                        <i class="fab fa-whatsapp"></i> Order received! We will contact you on WhatsApp or call you shortly.
+                    </div>
+
+                    <button type="button" id="btn-order-another" class="btn-done">
+                        <i class="fas fa-plus"></i> Register Another Student
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Small Discreet Admin Access Button at Bottom -->
+        <footer class="site-footer">
+            <button type="button" id="btn-open-admin-auth" class="small-admin-btn" title="Admin Portal">
+                <i class="fas fa-lock icon-gold"></i> Admin
+            </button>
+        </footer>
+    </main>
+
+    <!-- ================================================================= -->
+    <!-- PASSWORD PROTECTED ADMIN MODAL POPUP (HIDDEN BY DEFAULT)          -->
+    <!-- ================================================================= -->
+    <div id="admin-modal-backdrop" class="admin-modal-overlay" style="display: none;">
+        <div class="admin-modal-window">
+            <button type="button" id="btn-close-admin-modal" class="admin-modal-close" title="Close dialog">&times;</button>
+            
+            <!-- 1. Password Lock View -->
+            <div id="admin-modal-lock-view" class="admin-modal-auth-box">
+                <div class="lock-circle-icon">
+                    <i class="fas fa-lock icon-gold"></i>
+                </div>
+                <h3 class="auth-box-title">Admin Access</h3>
+                <p class="auth-box-subtitle">Enter password to manage student registrations</p>
+
+                <form id="admin-auth-form" class="auth-form" onsubmit="return false;">
+                    <div class="auth-input-group">
+                        <i class="fas fa-key auth-icon"></i>
+                        <input type="password" id="admin-pass-field" class="auth-input" placeholder="Password" autocomplete="current-password">
+                        <button type="button" id="btn-toggle-eye" class="auth-eye-btn" title="Toggle visibility">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <span id="admin-auth-error" class="auth-error-text" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i> Incorrect password.
+                    </span>
+                    <button type="submit" id="btn-submit-password" class="auth-submit-btn">
+                        <i class="fas fa-unlock"></i> Unlock Dashboard
+                    </button>
+                </form>
+            </div>
+
+            <!-- 2. Unlocked Admin Dashboard View -->
+            <div id="admin-modal-dashboard-view" class="admin-modal-dash-box" style="display: none;">
+                <div class="dash-modal-header">
+                    <div>
+                        <span class="live-status-pill"><span class="pulse-dot"></span> Admin Portal</span>
+                        <h2 class="dash-modal-title">Academy Management</h2>
+                    </div>
+                    <div class="dash-header-actions">
+                        <button type="button" id="btn-panel-add-test" class="btn-pill btn-pill-green" title="Add a sample order">
+                            <i class="fas fa-plus"></i> Test Order
+                        </button>
+                        <button type="button" id="btn-lock-modal" class="btn-pill btn-pill-gray" title="Lock the dashboard">
+                            <i class="fas fa-lock"></i> Lock
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Admin Tabs Navigation -->
+                <div class="admin-tabs-nav">
+                    <button type="button" id="tab-btn-orders" class="admin-tab-btn active" data-tab="orders">
+                        <i class="fas fa-clipboard-list icon-blue"></i> Student Orders (<span id="tab-orders-count">0</span>)
+                    </button>
+                    <button type="button" id="tab-btn-media" class="admin-tab-btn" data-tab="media">
+                        <i class="fas fa-photo-video icon-gold"></i> Site Media & Video
+                    </button>
+                </div>
+
+                <!-- TAB 1: Orders Management -->
+                <div id="admin-tab-orders" class="admin-tab-pane active">
+                    <!-- KPI Metric Cards -->
+                    <div class="panel-kpi-grid">
+                        <div class="kpi-mini-card">
+                            <div class="kpi-header">
+                                <span class="kpi-label">Total Orders</span>
+                                <i class="fas fa-clipboard-list icon-blue"></i>
+                            </div>
+                            <strong class="kpi-number" id="kpi-total-orders">0</strong>
+                        </div>
+                        <div class="kpi-mini-card orange">
+                            <div class="kpi-header">
+                                <span class="kpi-label">Pending</span>
+                                <i class="fas fa-hourglass-half icon-orange"></i>
+                            </div>
+                            <strong class="kpi-number" id="kpi-pending-orders">0</strong>
+                        </div>
+                        <div class="kpi-mini-card green">
+                            <div class="kpi-header">
+                                <span class="kpi-label">Confirmed</span>
+                                <i class="fas fa-check-circle icon-green"></i>
+                            </div>
+                            <strong class="kpi-number" id="kpi-confirmed-orders">0</strong>
+                        </div>
+                        <div class="kpi-mini-card gold">
+                            <div class="kpi-header">
+                                <span class="kpi-label">Revenue</span>
+                                <i class="fas fa-coins icon-gold"></i>
+                            </div>
+                            <strong class="kpi-number" id="kpi-revenue-orders">0 DZD</strong>
+                        </div>
+                    </div>
+
+                    <!-- Search & Filters -->
+                    <div class="panel-toolbar">
+                        <div class="panel-search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="panel-search-query" placeholder="Search student name or phone...">
+                        </div>
+                        <div class="panel-filter-row">
+                            <select id="panel-filter-course" class="panel-filter-select">
+                                <option value="ALL">All Courses</option>
+                                <option value="Classic Bar">Classic Bar</option>
+                                <option value="Extra Barman">Extra Barman</option>
+                            </select>
+                            <select id="panel-filter-status" class="panel-filter-select">
+                                <option value="ALL">All Status</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Confirmed">Confirmed</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Order Cards Container -->
+                    <div id="panel-orders-container" class="panel-orders-container">
+                        <!-- Populated via script.js -->
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="panel-orders-empty" class="panel-empty-box" style="display: none;">
+                        <i class="fas fa-inbox empty-icon"></i>
+                        <h4>No Orders Yet</h4>
+                        <p>New registrations will appear here in real time!</p>
+                    </div>
+                </div>
+
+                <!-- TAB 2: Site Media & Content Manager -->
+                <div id="admin-tab-media" class="admin-tab-pane" style="display: none;">
+                    <div class="media-tab-header">
+                        <span class="media-tab-badge"><i class="fas fa-sliders-h icon-gold"></i> Live Customizer</span>
+                        <h3>Live Media & Video Manager</h3>
+                        <p>Change the top video and course images directly. Upload files from your phone/PC or paste URLs.</p>
+                    </div>
+
+                    <form id="admin-media-form" class="media-manager-form" onsubmit="return false;">
+                        <!-- 1. Top Featured Video -->
+                        <div class="media-card-editor">
+                            <div class="media-editor-header">
+                                <h4><i class="fas fa-play-circle icon-orange"></i> Top Featured Video</h4>
+                                <span class="badge-tag">Hero Section</span>
+                            </div>
+                            <p class="media-helper">Paste a video URL or upload an MP4/video file from your device.</p>
+                            
+                            <div class="media-input-group">
+                                <label for="media-top-video-url">Video Source URL:</label>
+                                <input type="text" id="media-top-video-url" class="form-control" placeholder="assets/bg-video.mp4 or https://...">
+                            </div>
+                            
+                            <div class="file-upload-box">
+                                <label for="media-top-video-file" class="file-label">
+                                    <i class="fas fa-upload icon-orange"></i> Or Upload Video File (PC/Phone)
+                                </label>
+                                <input type="file" id="media-top-video-file" accept="video/*" class="file-input">
+                                <span id="file-name-video" class="file-name-text"></span>
+                            </div>
+                            <div class="media-item-actions">
+                                <button type="button" id="btn-clear-video" class="btn-clear-slot" title="Remove custom video and restore default">
+                                    <i class="fas fa-trash-alt"></i> Delete / Reset Video
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 2. Course 1 Image (Classic Bar) -->
+                        <div class="media-card-editor">
+                            <div class="media-editor-header">
+                                <h4><i class="fas fa-cocktail icon-orange"></i> Course 1 Image (Classic Bar)</h4>
+                                <span class="badge-tag">Orange Card</span>
+                            </div>
+                            <div class="media-editor-grid">
+                                <div class="media-inputs-col">
+                                    <div class="media-input-group">
+                                        <label for="media-c1-url">Image URL:</label>
+                                        <input type="text" id="media-c1-url" class="form-control" placeholder="assets/course-classic-bar.jpg or https://...">
+                                    </div>
+                                    <div class="file-upload-box">
+                                        <label for="media-c1-file" class="file-label">
+                                            <i class="fas fa-camera icon-orange"></i> Upload Photo from Gallery
+                                        </label>
+                                        <input type="file" id="media-c1-file" accept="image/*" class="file-input">
+                                    </div>
+                                    <div class="media-item-actions">
+                                        <button type="button" id="btn-clear-c1" class="btn-clear-slot" title="Remove custom photo and restore default">
+                                            <i class="fas fa-trash-alt"></i> Delete / Reset Photo
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="media-thumb-col">
+                                    <span class="thumb-label">Current / New Preview:</span>
+                                    <div class="thumb-frame">
+                                        <img id="preview-c1-img" src="assets/course-classic-bar.jpg" alt="Preview Course 1">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. Course 2 Image (Extra Barman) -->
+                        <div class="media-card-editor">
+                            <div class="media-editor-header">
+                                <h4><i class="fas fa-wine-glass-alt icon-blue"></i> Course 2 Image (Extra Barman)</h4>
+                                <span class="badge-tag">Blue Card</span>
+                            </div>
+                            <div class="media-editor-grid">
+                                <div class="media-inputs-col">
+                                    <div class="media-input-group">
+                                        <label for="media-c2-url">Image URL:</label>
+                                        <input type="text" id="media-c2-url" class="form-control" placeholder="assets/course-extra-barman.jpg or https://...">
+                                    </div>
+                                    <div class="file-upload-box">
+                                        <label for="media-c2-file" class="file-label">
+                                            <i class="fas fa-camera icon-blue"></i> Upload Photo from Gallery
+                                        </label>
+                                        <input type="file" id="media-c2-file" accept="image/*" class="file-input">
+                                    </div>
+                                    <div class="media-item-actions">
+                                        <button type="button" id="btn-clear-c2" class="btn-clear-slot" title="Remove custom photo and restore default">
+                                            <i class="fas fa-trash-alt"></i> Delete / Reset Photo
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="media-thumb-col">
+                                    <span class="thumb-label">Current / New Preview:</span>
+                                    <div class="thumb-frame">
+                                        <img id="preview-c2-img" src="assets/course-extra-barman.jpg" alt="Preview Course 2">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Media Actions -->
+                        <div class="media-form-actions">
+                            <button type="button" id="btn-save-media" class="modal-submit-btn">
+                                <i class="fas fa-save"></i> Save & Apply Changes
+                            </button>
+                            <button type="button" id="btn-reset-media" class="btn-pill btn-pill-gray">
+                                <i class="fas fa-undo"></i> Reset to Defaults
+                            </button>
+                        </div>
+                        <div id="media-save-toast" class="whatsapp-alert" style="display: none;">
+                            <i class="fas fa-check-circle"></i> Media updated successfully! Live website refreshed.
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js?v=20260914_08"></script>
+</body>
+</html>
