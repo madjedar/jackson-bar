@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jackson Bar - Professional Barista Courses</title>
-    <link rel="stylesheet" href="styles.css?v=20260914_10">
+    <link rel="stylesheet" href="styles.css?v=20260923_gallery">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
@@ -12,20 +12,15 @@
 </head>
 <body>
 
-    <!-- Audio Player (Hidden, auto-play managed by JS) -->
-    <!-- Ideally, this source should point to a local 'billie_jean.mp3' or a hosted version -->
-    <!-- For demonstration, pointing to a free placeholder audio if local file is missing, but simulating the behavior requested. -->
-    <audio id="bg-audio" loop>
-        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    <!-- Audio Player (Hidden, auto-play & looping managed by JS from 00:15) -->
+    <audio id="bg-audio" preload="auto">
+        <source src="assets/billie-jean.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
 
-    <!-- Fixed Background Video (loops forever) -->
+    <!-- Fixed Atmospheric Background Image -->
     <div class="bg-container">
-        <!-- The user's video — loops seamlessly as full-screen background -->
-        <video class="bg-video-main" autoplay loop muted playsinline>
-            <source src="assets/bg-video.mp4" type="video/mp4">
-        </video>
+        <img class="bg-image-main" src="assets/bg.jpg" alt="Jackson Bar Candle & Crystal Theme">
     </div>
 
     <!-- Floating Music Toggle Button (discreetly placed in bottom-right corner) -->
@@ -35,8 +30,27 @@
 
     <!-- Main Content -->
     <main class="content">
-        <!-- Open Hero Showcase with Dedicated Featured Video Player -->
+        <!-- Grand Hero Showcase — Unobstructed view of Michael Jackson, the lit candle, crystal glove & table -->
         <section class="hero-showcase">
+            <div class="hero-brand-badge">
+                <span class="brand-badge-dot"></span>
+                <span><i class="fas fa-crown icon-gold"></i> Jackson Barista & Mixology Academy</span>
+            </div>
+
+            <div class="hero-bottom-actions">
+                <a href="#courses-section" class="hero-scroll-pill" title="Explore Barista Courses">
+                    <span>Explore Courses</span>
+                    <i class="fas fa-chevron-down"></i>
+                </a>
+                <a href="#video-section" class="hero-video-pill" title="Watch Academy Intro Video">
+                    <i class="fas fa-play icon-orange"></i>
+                    <span>Academy Intro Video</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Academy Featured Video Player Section -->
+        <section class="video-showcase-section" id="video-section">
             <div class="hero-video-window" id="hero-video-window">
                 <div class="video-window-header">
                     <div class="window-dots">
@@ -54,11 +68,6 @@
                     </video>
                 </div>
             </div>
-
-            <a href="#courses-section" class="hero-scroll-pill" title="Explore Barista Courses">
-                <span>Explore Courses</span>
-                <i class="fas fa-chevron-down"></i>
-            </a>
         </section>
 
         <!-- Courses Section -->
@@ -66,87 +75,118 @@
             <h2 class="section-title">Drinks of the Four Corners of the World</h2>
             
             <div class="course-grid">
-                <!-- Course 1 (Classic Bar - Professional Barista & Classic Mixology) -->
-                <div class="course-card course-card-orange">
+                <!-- Course 1 (Classic Bar - Bronze Tier Column) -->
+                <div class="course-card course-card-bronze">
                     <div class="course-media-wrap">
                         <img id="course-1-img" src="assets/course-classic-bar.jpg" alt="Classic Barista Course" class="course-img" loading="lazy">
-                        <span class="course-media-badge"><i class="fas fa-certificate icon-orange"></i> Certified Barista</span>
+                        <span class="course-media-badge badge-bronze"><i class="fas fa-medal icon-bronze"></i> Bronze Tier • Certified Barista</span>
                     </div>
 
                     <div class="card-header">
-                        <h3><i class="fas fa-cocktail icon-orange"></i> Classic Bar</h3>
-                        <span class="duration"><i class="far fa-clock"></i> 6 hours Intensive</span>
+                        <h3><i class="fas fa-cocktail icon-bronze"></i> Classic Bar</h3>
+                        <span class="duration duration-bronze"><i class="far fa-clock"></i> 6 hours Intensive</span>
                     </div>
-                    <div class="card-price price-orange">
+                    <div class="card-price price-bronze">
                         15,000 DZD <span>(1.5 million centimes)</span>
                     </div>
                     <div class="card-body">
                         <p class="course-summary-lead">Foundational barista mastery & specialty beverage craftsmanship designed for immediate café employment and business launch.</p>
                         
                         <ul class="course-feature-list">
-                            <li><i class="fas fa-check-circle icon-orange"></i> <strong>Espresso Science:</strong> Dose calibration, grind particle size & extraction yield.</li>
-                            <li><i class="fas fa-check-circle icon-orange"></i> <strong>Latte Art Mastery:</strong> Silk microfoam steaming, hearts, tulips & rosette patterns.</li>
-                            <li><i class="fas fa-check-circle icon-orange"></i> <strong>60+ Hot & Cold Drinks:</strong> Iced frappés, specialty brews, artisanal mojitos & fruit mocktails.</li>
-                            <li><i class="fas fa-check-circle icon-orange"></i> <strong>Machine Care & Speed:</strong> Commercial espresso machine hygiene & rapid bar workflow.</li>
+                            <li><i class="fas fa-check-circle icon-bronze"></i> <strong>Espresso Science:</strong> Dose calibration, grind particle size & extraction yield.</li>
+                            <li><i class="fas fa-check-circle icon-bronze"></i> <strong>Latte Art Mastery:</strong> Silk microfoam steaming, hearts, tulips & rosette patterns.</li>
+                            <li><i class="fas fa-check-circle icon-bronze"></i> <strong>60+ Hot & Cold Drinks:</strong> Iced frappés, specialty brews, artisanal mojitos & fruit mocktails.</li>
+                            <li><i class="fas fa-check-circle icon-bronze"></i> <strong>Machine Care & Speed:</strong> Commercial espresso machine hygiene & rapid bar workflow.</li>
                         </ul>
 
                         <div class="syllabus-tags-wrap">
-                            <span class="syllabus-tag">☕ Espresso Lab</span>
-                            <span class="syllabus-tag">🎨 Latte Art</span>
-                            <span class="syllabus-tag">🧊 60+ Recipes</span>
-                            <span class="syllabus-tag">📜 Certificate</span>
+                            <span class="syllabus-tag tag-bronze">☕ Espresso Lab</span>
+                            <span class="syllabus-tag tag-bronze">🎨 Latte Art</span>
+                            <span class="syllabus-tag tag-bronze">🧊 60+ Recipes</span>
+                            <span class="syllabus-tag tag-bronze">📜 Certificate</span>
                         </div>
                     </div>
-                    <button class="enroll-btn btn-orange" data-course="Classic Bar" data-price="15,000 DZD">
+
+                    <!-- Photo Gallery Grid (Classic Bar) -->
+                    <div class="course-gallery" id="gallery-classic-bar">
+                        <div class="gallery-header">
+                            <h4><i class="fas fa-images icon-bronze"></i> Course Gallery</h4>
+                            <span class="gallery-count" id="gallery-count-classic">0 photos</span>
+                        </div>
+                        <div class="gallery-grid" id="gallery-grid-classic">
+                            <div class="gallery-empty">
+                                <i class="fas fa-camera-retro"></i>
+                                <span>Gallery photos coming soon</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="enroll-btn btn-bronze" data-course="Classic Bar" data-price="15,000 DZD">
                         <i class="fas fa-edit"></i> Enroll in Classic Bar
                     </button>
                 </div>
 
-                <!-- Course 2 (Extra Barman - Master Mixologist & Flair Showmanship) -->
-                <div class="course-card course-card-blue">
+                <!-- Course 2 (Extra Barman - Silver Tier Column) -->
+                <div class="course-card course-card-silver">
                     <div class="course-media-wrap">
                         <img id="course-2-img" src="assets/course-extra-barman.jpg" alt="Extra Barman Mixology Course" class="course-img" loading="lazy">
-                        <span class="course-media-badge"><i class="fas fa-award icon-blue"></i> Master Diploma</span>
+                        <span class="course-media-badge badge-silver"><i class="fas fa-award icon-silver"></i> Silver Tier • Master Diploma</span>
                     </div>
 
                     <div class="card-header">
-                        <h3><i class="fas fa-wine-glass-alt icon-blue"></i> Extra Barman</h3>
-                        <span class="duration"><i class="far fa-clock"></i> 8 hours Masterclass</span>
+                        <h3><i class="fas fa-wine-glass-alt icon-silver"></i> Extra Barman</h3>
+                        <span class="duration duration-silver"><i class="far fa-clock"></i> 8 hours Masterclass</span>
                     </div>
-                    <div class="card-price price-blue">
+                    <div class="card-price price-silver">
                         20,000 DZD <span>(2 million centimes)</span>
                     </div>
                     <div class="card-body">
                         <p class="course-summary-lead">Elite mixology and showmanship training for aspiring lounge head bartenders, hotel baristas, and flair artists.</p>
                         
                         <ul class="course-feature-list">
-                            <li><i class="fas fa-check-circle icon-blue"></i> <strong>80+ Signature Cocktails:</strong> Multi-layered drinks, fruit reductions, infused syrups & exotic elixirs.</li>
-                            <li><i class="fas fa-check-circle icon-blue"></i> <strong>Flair Bartending Craft:</strong> Shaker tin manipulation, bottle spinning, ice tosses & stage presence.</li>
-                            <li><i class="fas fa-check-circle icon-blue"></i> <strong>Molecular Mixology:</strong> Smoke bubble gun cloches, dry ice presentation & color-shift chemistry.</li>
-                            <li><i class="fas fa-check-circle icon-blue"></i> <strong>Bar Management:</strong> Recipe costing, drink margins, bar station ergonomics & VIP hospitality.</li>
+                            <li><i class="fas fa-check-circle icon-silver"></i> <strong>80+ Signature Cocktails:</strong> Multi-layered drinks, fruit reductions, infused syrups & exotic elixirs.</li>
+                            <li><i class="fas fa-check-circle icon-silver"></i> <strong>Flair Bartending Craft:</strong> Shaker tin manipulation, bottle spinning, ice tosses & stage presence.</li>
+                            <li><i class="fas fa-check-circle icon-silver"></i> <strong>Molecular Mixology:</strong> Smoke bubble gun cloches, dry ice presentation & color-shift chemistry.</li>
+                            <li><i class="fas fa-check-circle icon-silver"></i> <strong>Bar Management:</strong> Recipe costing, drink margins, bar station ergonomics & VIP hospitality.</li>
                         </ul>
 
                         <div class="syllabus-tags-wrap">
-                            <span class="syllabus-tag">🍸 80+ Cocktails</span>
-                            <span class="syllabus-tag">🌪️ Flair Show</span>
-                            <span class="syllabus-tag">💨 Molecular Bar</span>
-                            <span class="syllabus-tag">🏆 Master Diploma</span>
+                            <span class="syllabus-tag tag-silver">🍸 80+ Cocktails</span>
+                            <span class="syllabus-tag tag-silver">🌪️ Flair Show</span>
+                            <span class="syllabus-tag tag-silver">💨 Molecular Bar</span>
+                            <span class="syllabus-tag tag-silver">🏆 Master Diploma</span>
                         </div>
                     </div>
-                    <button class="enroll-btn btn-blue" data-course="Extra Barman" data-price="20,000 DZD">
+
+                    <!-- Photo Gallery Grid (Extra Barman) -->
+                    <div class="course-gallery" id="gallery-extra-barman">
+                        <div class="gallery-header">
+                            <h4><i class="fas fa-images icon-silver"></i> Course Gallery</h4>
+                            <span class="gallery-count" id="gallery-count-extra">0 photos</span>
+                        </div>
+                        <div class="gallery-grid" id="gallery-grid-extra">
+                            <div class="gallery-empty">
+                                <i class="fas fa-camera-retro"></i>
+                                <span>Gallery photos coming soon</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="enroll-btn btn-silver" data-course="Extra Barman" data-price="20,000 DZD">
                         <i class="fas fa-edit"></i> Enroll in Extra Barman
                     </button>
                 </div>
 
-                <!-- Course 3 (Locked VIP Masterclass) -->
+                <!-- Course 3 (Golden Barman - Gold Tier VIP Masterclass - Locked / Coming Soon) -->
                 <div class="course-card course-card-gold locked">
                     <div class="lock-overlay">
                         <i class="fas fa-crown lock-icon icon-gold"></i>
-                        <span class="badge">Coming Soon</span>
+                        <span class="badge-gold-locked"><i class="fas fa-lock"></i> Coming Soon</span>
                     </div>
                     <div class="card-header">
                         <h3>Golden Barman Masterclass</h3>
                     </div>
+                    <p class="locked-subtext">Elite VIP Masterclass • In Development</p>
                 </div>
             </div>
         </section>
@@ -167,11 +207,11 @@
                 <form id="inline-enroll-form" class="enrollment-form" novalidate>
                     <!-- Course Selection -->
                     <div class="form-group">
-                        <label for="inline-course-select"><i class="fas fa-cocktail icon-orange"></i> Choose Course</label>
+                        <label for="inline-course-select"><i class="fas fa-cocktail icon-bronze"></i> Choose Course</label>
                         <div class="input-icon-wrapper">
                             <select id="inline-course-select" class="form-control">
-                                <option value="Classic Bar" data-price="15,000 DZD">Classic Bar — 15,000 DZD (1.5M centimes)</option>
-                                <option value="Extra Barman" data-price="20,000 DZD">Extra Barman — 20,000 DZD (2M centimes)</option>
+                                <option value="Classic Bar" data-price="15,000 DZD">🥉 Classic Bar (Bronze Tier) — 15,000 DZD (1.5M centimes)</option>
+                                <option value="Extra Barman" data-price="20,000 DZD">🥈 Extra Barman (Silver Tier) — 20,000 DZD (2M centimes)</option>
                             </select>
                         </div>
                     </div>
@@ -317,10 +357,13 @@
                 <!-- Admin Tabs Navigation -->
                 <div class="admin-tabs-nav">
                     <button type="button" id="tab-btn-orders" class="admin-tab-btn active" data-tab="orders">
-                        <i class="fas fa-clipboard-list icon-blue"></i> Student Orders (<span id="tab-orders-count">0</span>)
+                        <i class="fas fa-clipboard-list icon-blue"></i> Orders (<span id="tab-orders-count">0</span>)
+                    </button>
+                    <button type="button" id="tab-btn-gallery" class="admin-tab-btn" data-tab="gallery">
+                        <i class="fas fa-images icon-bronze"></i> Gallery
                     </button>
                     <button type="button" id="tab-btn-media" class="admin-tab-btn" data-tab="media">
-                        <i class="fas fa-photo-video icon-gold"></i> Site Media & Video
+                        <i class="fas fa-photo-video icon-gold"></i> Site Media
                     </button>
                 </div>
 
@@ -369,6 +412,7 @@
                                 <option value="ALL">All Courses</option>
                                 <option value="Classic Bar">Classic Bar</option>
                                 <option value="Extra Barman">Extra Barman</option>
+                                <option value="Golden Barman">Golden Barman</option>
                             </select>
                             <select id="panel-filter-status" class="panel-filter-select">
                                 <option value="ALL">All Status</option>
@@ -393,7 +437,60 @@
                     </div>
                 </div>
 
-                <!-- TAB 2: Site Media & Content Manager -->
+                <!-- TAB 2: Course Gallery Manager -->
+                <div id="admin-tab-gallery" class="admin-tab-pane" style="display: none;">
+                    <div class="media-tab-header">
+                        <span class="media-tab-badge"><i class="fas fa-images icon-bronze"></i> Gallery Manager</span>
+                        <h3>Course Photo Gallery</h3>
+                        <p>Upload up to 20 photos for each course. Photos appear on the main website inside each course card.</p>
+                    </div>
+
+                    <!-- Classic Bar Gallery Manager -->
+                    <div class="gallery-admin-section">
+                        <div class="gallery-admin-header">
+                            <h4><i class="fas fa-cocktail icon-bronze"></i> Classic Bar Gallery</h4>
+                            <span class="gallery-admin-count" id="admin-gallery-count-classic">0 / 20</span>
+                        </div>
+                        <div class="file-upload-box gallery-upload-box">
+                            <label for="gallery-upload-classic" class="file-label">
+                                <i class="fas fa-cloud-upload-alt icon-bronze"></i> Upload Photos (max 20)
+                            </label>
+                            <input type="file" id="gallery-upload-classic" accept="image/*" multiple class="file-input">
+                        </div>
+                        <div class="gallery-admin-grid" id="admin-gallery-grid-classic">
+                            <div class="gallery-empty">
+                                <i class="fas fa-image"></i>
+                                <span>No photos uploaded yet</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Extra Barman Gallery Manager -->
+                    <div class="gallery-admin-section">
+                        <div class="gallery-admin-header">
+                            <h4><i class="fas fa-wine-glass-alt icon-silver"></i> Extra Barman Gallery</h4>
+                            <span class="gallery-admin-count" id="admin-gallery-count-extra">0 / 20</span>
+                        </div>
+                        <div class="file-upload-box gallery-upload-box">
+                            <label for="gallery-upload-extra" class="file-label">
+                                <i class="fas fa-cloud-upload-alt icon-silver"></i> Upload Photos (max 20)
+                            </label>
+                            <input type="file" id="gallery-upload-extra" accept="image/*" multiple class="file-input">
+                        </div>
+                        <div class="gallery-admin-grid" id="admin-gallery-grid-extra">
+                            <div class="gallery-empty">
+                                <i class="fas fa-image"></i>
+                                <span>No photos uploaded yet</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="gallery-save-toast" class="whatsapp-alert" style="display: none;">
+                        <i class="fas fa-check-circle"></i> Gallery updated successfully!
+                    </div>
+                </div>
+
+                <!-- TAB 3: Site Media & Content Manager -->
                 <div id="admin-tab-media" class="admin-tab-pane" style="display: none;">
                     <div class="media-tab-header">
                         <span class="media-tab-badge"><i class="fas fa-sliders-h icon-gold"></i> Live Customizer</span>
@@ -513,6 +610,21 @@
         </div>
     </div>
 
-    <script src="script.js?v=20260914_08"></script>
+    <!-- Fullscreen Gallery Lightbox Overlay -->
+    <div id="gallery-lightbox" class="gallery-lightbox" style="display: none;">
+        <button type="button" id="lightbox-close" class="lightbox-close" title="Close">&times;</button>
+        <button type="button" id="lightbox-prev" class="lightbox-nav lightbox-prev-btn" title="Previous"><i class="fas fa-chevron-left"></i></button>
+        <div class="lightbox-img-wrap">
+            <img id="lightbox-img" src="" alt="Gallery Photo">
+            <span class="lightbox-counter" id="lightbox-counter">1 / 20</span>
+        </div>
+        <button type="button" id="lightbox-next" class="lightbox-nav lightbox-next-btn" title="Next"><i class="fas fa-chevron-right"></i></button>
+    </div>
+
+    <!-- Firebase Configuration -->
+    <script type="module" src="firebase-config.js"></script>
+
+    <!-- Main Application Logic (loaded sequentially) -->
+    <script defer src="script.js?v=20260923_firebase"></script>
 </body>
 </html>

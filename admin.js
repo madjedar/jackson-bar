@@ -149,6 +149,11 @@ function renderDashboard() {
         const telUrl = `tel:${(order.phone || '').replace(/\s+/g, '')}`;
 
         const statusClass = (order.status || 'Pending').toLowerCase();
+        const courseIcon = order.course === 'Classic Bar'
+            ? '<i class="fas fa-cocktail icon-bronze"></i>'
+            : (order.course === 'Extra Barman'
+                ? '<i class="fas fa-wine-glass-alt icon-silver"></i>'
+                : '<i class="fas fa-crown icon-gold"></i>');
 
         return `
             <div class="order-row-card" data-order-id="${order.id}">
@@ -174,7 +179,7 @@ function renderDashboard() {
                 <!-- Center: Course & Price Details -->
                 <div class="order-course-info">
                     <div class="course-pill">
-                        <i class="fas fa-cocktail"></i>
+                        ${courseIcon}
                         <span>${escapeHtml(order.course || 'Course')}</span>
                     </div>
                     <div class="order-price-tag">
@@ -252,7 +257,8 @@ function addSampleOrder() {
     ];
     const sampleCourses = [
         { course: 'Classic Bar', price: '15,000 DZD' },
-        { course: 'Extra Barman', price: '20,000 DZD' }
+        { course: 'Extra Barman', price: '20,000 DZD' },
+        { course: 'Golden Barman', price: '30,000 DZD' }
     ];
     const samplePhones = [
         '0550 12 34 56', '0661 78 90 12', '0770 45 67 89', '0541 33 22 11'

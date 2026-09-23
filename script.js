@@ -7,14 +7,15 @@ const ADMIN_PASSWORD = 'yacine123';
 
 const COURSE_PRICE_MAP = {
     'Classic Bar': '15,000 DZD',
-    'Extra Barman': '20,000 DZD'
+    'Extra Barman': '20,000 DZD',
+    'Golden Barman': '30,000 DZD'
 };
 
 // =========================================================================
 // 1. INDEXEDDB DATABASE LAYER (NO 5MB QUOTA LIMIT — CAN STORE GIGABYTES)
 // =========================================================================
 const DB_NAME = 'JacksonBarDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 function openJBDatabase() {
     return new Promise((resolve) => {
@@ -32,6 +33,9 @@ function openJBDatabase() {
                 }
                 if (!db.objectStoreNames.contains('ordersStore')) {
                     db.createObjectStore('ordersStore');
+                }
+                if (!db.objectStoreNames.contains('galleryStore')) {
+                    db.createObjectStore('galleryStore');
                 }
             };
             req.onsuccess = () => resolve(req.result);
@@ -153,71 +157,44 @@ function compressImageFile(file, maxWidth = 1920, maxHeight = 1920, quality = 0.
 }
 
 // =========================================================================
-// 3. ORDERS STORAGE & MULTI-TIER SYNC (LocalStorage + IndexedDB + Server API)
+// 3. ORDERS STORAGE & MULTI-TIER SYNC (FIREBASE FIRESTORE)
 // =========================================================================
+let cachedOrders = [];
+
 function getOrders() {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : [];
-    } catch (e) {
-        console.error('Error parsing orders', e);
-        return [];
-    }
+    return cachedOrders;
 }
 
-function saveOrders(orders) {
-    try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
-        window.dispatchEvent(new Event('orders_updated'));
-    } catch (e) {
-        console.error('Error saving orders to localStorage', e);
-    }
-
-    // Secondary persistence: IndexedDB
-    idbSet('ordersStore', 'all_orders', orders);
-
-    // Tertiary persistence: Server Disk JSON Database
-    fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orders)
-    }).catch(() => {});
+async function saveOrders(orders) {
+    cachedOrders = orders;
+    updateNavBadge();
+    if (typeof renderAdminPanel === 'function') renderAdminPanel();
+    // In Firebase, adding a new order is an addDoc operation.
+    // The real-time listener will sync it back to cachedOrders, but we update cache instantly for fast UI.
 }
 
 async function syncOrdersFromDatabase() {
-    // 1. Try fetching from server.py disk database
-    try {
-        const res = await fetch('/api/orders');
-        if (res.ok) {
-            const serverOrders = await res.json();
-            if (Array.isArray(serverOrders) && serverOrders.length > 0) {
-                const localOrders = getOrders();
-                const map = new Map();
-                serverOrders.forEach(o => { if (o && o.id) map.set(o.id, o); });
-                localOrders.forEach(o => { if (o && o.id) map.set(o.id, o); });
-                const merged = Array.from(map.values()).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-                updateNavBadge();
-                if (typeof renderAdminPanel === 'function') renderAdminPanel();
-                return;
-            }
-        }
-    } catch (e) {}
-
-    // 2. Fallback to IndexedDB if server offline
-    try {
-        const dbOrders = await idbGet('ordersStore', 'all_orders');
-        if (Array.isArray(dbOrders) && dbOrders.length > 0) {
-            const localOrders = getOrders();
-            const map = new Map();
-            dbOrders.forEach(o => { if (o && o.id) map.set(o.id, o); });
-            localOrders.forEach(o => { if (o && o.id) map.set(o.id, o); });
-            const merged = Array.from(map.values()).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-            updateNavBadge();
-            if (typeof renderAdminPanel === 'function') renderAdminPanel();
-        }
-    } catch (e) {}
+    if (!window.fb) {
+        // Retry in 100ms if Firebase isn't ready
+        setTimeout(syncOrdersFromDatabase, 100);
+        return;
+    }
+    const { db, collection, onSnapshot, query, orderBy } = window.fb;
+    const ordersRef = collection(db, "orders");
+    const q = query(ordersRef, orderBy("timestamp", "desc"));
+    
+    // Set up real-time listener
+    onSnapshot(q, (snapshot) => {
+        const orders = [];
+        snapshot.forEach((doc) => {
+            const data = doc.data();
+            data.firebaseId = doc.id; // Keep track of the document ID for updates/deletes
+            orders.push(data);
+        });
+        cachedOrders = orders;
+        updateNavBadge();
+        if (typeof renderAdminPanel === 'function') renderAdminPanel();
+    });
 }
 
 // =========================================================================
@@ -332,29 +309,30 @@ async function initSiteMedia() {
         }
     } catch (e) {}
 
-    // B. Fetch from server.py disk database (/api/media)
-    try {
-        const res = await fetch('/api/media');
-        if (res.ok) {
-            const serverMedia = await res.json();
-            if (serverMedia && (serverMedia.topVideo || serverMedia.course1Img || serverMedia.course2Img)) {
-                currentSiteMedia = {
-                    topVideo: serverMedia.topVideo || DEFAULT_MEDIA.topVideo,
-                    course1Img: serverMedia.course1Img || DEFAULT_MEDIA.course1Img,
-                    course2Img: serverMedia.course2Img || DEFAULT_MEDIA.course2Img
-                };
-                try {
-                    localStorage.setItem(MEDIA_STORAGE_KEY, JSON.stringify(currentSiteMedia));
-                } catch (e) {}
-                await applySiteMedia();
-                return;
+    // B. Listen to Firebase Realtime Updates
+    if (window.fb) {
+        const docRef = window.fb.doc(window.fb.db, "settings", "media");
+        window.fb.onSnapshot(docRef, (docSnap) => {
+            if (docSnap.exists()) {
+                const serverMedia = docSnap.data();
+                if (serverMedia && (serverMedia.topVideo || serverMedia.course1Img || serverMedia.course2Img)) {
+                    currentSiteMedia = {
+                        topVideo: serverMedia.topVideo || DEFAULT_MEDIA.topVideo,
+                        course1Img: serverMedia.course1Img || DEFAULT_MEDIA.course1Img,
+                        course2Img: serverMedia.course2Img || DEFAULT_MEDIA.course2Img
+                    };
+                    try {
+                        localStorage.setItem(MEDIA_STORAGE_KEY, JSON.stringify(currentSiteMedia));
+                    } catch (e) {}
+                    idbSet('mediaStore', 'active_media', currentSiteMedia);
+                    applySiteMedia();
+                }
             }
-        }
-    } catch (e) {
-        // server offline, proceed to IndexedDB
+        });
+        return;
     }
 
-    // C. Fallback to IndexedDB
+    // C. Fallback to IndexedDB (if no Firebase)
     try {
         const idbMedia = await idbGet('mediaStore', 'active_media');
         if (idbMedia && (idbMedia.topVideo || idbMedia.course1Img || idbMedia.course2Img)) {
@@ -370,6 +348,136 @@ async function initSiteMedia() {
 
     // D. Default fallback
     await applySiteMedia();
+}
+
+// =========================================================================
+// 5. COURSE GALLERY SYSTEM (Up to 20 photos per course)
+// =========================================================================
+const GALLERY_STORAGE_KEY = 'jb_gallery';
+
+// Gallery data structure: { classicBar: ['url1', ...], extraBarman: ['url1', ...] }
+let galleryData = { classicBar: [], extraBarman: [] };
+
+function getGalleryData() {
+    try {
+        const raw = localStorage.getItem(GALLERY_STORAGE_KEY);
+        if (!raw) return { classicBar: [], extraBarman: [] };
+        const parsed = JSON.parse(raw);
+        return {
+            classicBar: Array.isArray(parsed.classicBar) ? parsed.classicBar : [],
+            extraBarman: Array.isArray(parsed.extraBarman) ? parsed.extraBarman : []
+        };
+    } catch (e) {
+        return { classicBar: [], extraBarman: [] };
+    }
+}
+
+function saveGalleryData(data) {
+    galleryData = data;
+    try {
+        localStorage.setItem(GALLERY_STORAGE_KEY, JSON.stringify(data));
+    } catch (e) {}
+    idbSet('galleryStore', 'gallery_data', data);
+    
+    // Sync to Firebase
+    if (window.fb) {
+        window.fb.setDoc(window.fb.doc(window.fb.db, "settings", "gallery"), data, { merge: true })
+            .catch(e => console.error("Firebase sync error:", e));
+    }
+}
+
+function renderPublicGallery(courseKey, gridId, countId) {
+    const grid = document.getElementById(gridId);
+    const countEl = document.getElementById(countId);
+    if (!grid) return;
+
+    const photos = galleryData[courseKey] || [];
+    if (countEl) countEl.textContent = `${photos.length} photo${photos.length !== 1 ? 's' : ''}`;
+
+    if (photos.length === 0) {
+        grid.innerHTML = `<div class="gallery-empty"><i class="fas fa-camera-retro"></i><span>Gallery photos coming soon</span></div>`;
+        return;
+    }
+
+    grid.innerHTML = photos.map((url, idx) => `
+        <div class="gallery-grid-item" onclick="openLightbox('${courseKey}', ${idx})">
+            <img src="${url}" alt="Course Photo ${idx + 1}" loading="lazy">
+            <div class="gallery-zoom-icon"><i class="fas fa-search-plus"></i></div>
+        </div>
+    `).join('');
+}
+
+function renderAllPublicGalleries() {
+    renderPublicGallery('classicBar', 'gallery-grid-classic', 'gallery-count-classic');
+    renderPublicGallery('extraBarman', 'gallery-grid-extra', 'gallery-count-extra');
+}
+
+function renderAdminGallery(courseKey, gridId, countId) {
+    const grid = document.getElementById(gridId);
+    const countEl = document.getElementById(countId);
+    if (!grid) return;
+
+    const photos = galleryData[courseKey] || [];
+    if (countEl) countEl.textContent = `${photos.length} / 20`;
+
+    if (photos.length === 0) {
+        grid.innerHTML = `<div class="gallery-empty"><i class="fas fa-image"></i><span>No photos uploaded yet</span></div>`;
+        return;
+    }
+
+    grid.innerHTML = photos.map((url, idx) => `
+        <div class="gallery-admin-item">
+            <img src="${url}" alt="Photo ${idx + 1}">
+            <button type="button" class="gallery-delete-btn" onclick="deleteGalleryPhoto('${courseKey}', ${idx})" title="Delete photo">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `).join('');
+}
+
+function renderAllAdminGalleries() {
+    renderAdminGallery('classicBar', 'admin-gallery-grid-classic', 'admin-gallery-count-classic');
+    renderAdminGallery('extraBarman', 'admin-gallery-grid-extra', 'admin-gallery-count-extra');
+}
+
+async function initGallery() {
+    // 1. Quick load from localStorage
+    galleryData = getGalleryData();
+    renderAllPublicGalleries();
+
+    // 2. Listen to Firebase Realtime Updates
+    if (window.fb) {
+        const docRef = window.fb.doc(window.fb.db, "settings", "gallery");
+        window.fb.onSnapshot(docRef, (docSnap) => {
+            if (docSnap.exists()) {
+                const serverData = docSnap.data();
+                if (serverData && (serverData.classicBar || serverData.extraBarman)) {
+                    galleryData = {
+                        classicBar: Array.isArray(serverData.classicBar) ? serverData.classicBar : [],
+                        extraBarman: Array.isArray(serverData.extraBarman) ? serverData.extraBarman : []
+                    };
+                    try { localStorage.setItem(GALLERY_STORAGE_KEY, JSON.stringify(galleryData)); } catch (e) {}
+                    idbSet('galleryStore', 'gallery_data', galleryData);
+                    renderAllPublicGalleries();
+                    renderAllAdminGalleries();
+                }
+            }
+        });
+        return;
+    }
+
+    // 3. Fallback to IndexedDB (if no firebase)
+    try {
+        const idbData = await idbGet('galleryStore', 'gallery_data');
+        if (idbData && (idbData.classicBar || idbData.extraBarman)) {
+            galleryData = {
+                classicBar: Array.isArray(idbData.classicBar) ? idbData.classicBar : [],
+                extraBarman: Array.isArray(idbData.extraBarman) ? idbData.extraBarman : []
+            };
+            renderAllPublicGalleries();
+            renderAllAdminGalleries();
+        }
+    } catch (e) {}
 }
 
 // Helper: Format Date
@@ -417,7 +525,7 @@ function updateNavBadge() {
 document.addEventListener('DOMContentLoaded', () => {
 
     // ---------------------------------------------------------------------
-    // 1. BACKGROUND MUSIC & AUDIO AUTOPLAY
+    // 1. BACKGROUND MUSIC & AUDIO AUTOPLAY (Starts at 00:15 & Loops from 00:15)
     // ---------------------------------------------------------------------
     const audio = document.getElementById('bg-audio');
     const musicBtn = document.getElementById('music-toggle');
@@ -425,39 +533,94 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (audio) {
         audio.volume = 0.5;
+        const START_TIME = 15; // Set to 00:15
+
+        // Safely seek to 00:15
+        const seekToStartTime = () => {
+            try {
+                if (audio.currentTime < START_TIME) {
+                    audio.currentTime = START_TIME;
+                }
+            } catch (e) {
+                // Will retry on loadedmetadata / canplay
+            }
+        };
+
+        // When audio metadata is loaded, set initial seek time to 00:15
+        audio.addEventListener('loadedmetadata', seekToStartTime);
+        audio.addEventListener('canplay', () => {
+            if (audio.currentTime < START_TIME) {
+                seekToStartTime();
+            }
+        });
+
+        if (audio.readyState >= 1) {
+            seekToStartTime();
+        }
+
+        // Loop automatically from 00:15 when song ends
+        audio.addEventListener('ended', () => {
+            audio.currentTime = START_TIME;
+            audio.play().then(() => {
+                updateMusicIcon(true);
+            }).catch(() => {});
+        });
+
+        const updateMusicIcon = (isPlaying) => {
+            if (!musicIcon) return;
+            if (isPlaying) {
+                musicIcon.classList.remove('fa-volume-mute');
+                musicIcon.classList.add('fa-volume-up');
+            } else {
+                musicIcon.classList.remove('fa-volume-up');
+                musicIcon.classList.add('fa-volume-mute');
+            }
+        };
+
+        const playAudio = () => {
+            seekToStartTime();
+            return audio.play().then(() => {
+                updateMusicIcon(true);
+            }).catch((err) => {
+                updateMusicIcon(false);
+                throw err;
+            });
+        };
 
         const togglePlay = () => {
             if (audio.paused) {
+                seekToStartTime();
                 audio.play().then(() => {
-                    if (musicIcon) {
-                        musicIcon.classList.remove('fa-volume-mute');
-                        musicIcon.classList.add('fa-volume-up');
-                    }
+                    updateMusicIcon(true);
                 }).catch(() => {});
             } else {
                 audio.pause();
-                if (musicIcon) {
-                    musicIcon.classList.remove('fa-volume-up');
-                    musicIcon.classList.add('fa-volume-mute');
-                }
+                updateMusicIcon(false);
             }
         };
 
-        if (musicBtn) musicBtn.addEventListener('click', togglePlay);
+        if (musicBtn) {
+            musicBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                togglePlay();
+            });
+        }
 
-        // Start music on first touch or click
+        // Try playing immediately upon consulting website
+        playAudio().catch(() => {
+            // Autoplay prevented by browser security policy until user gesture
+        });
+
+        // Start on first user interaction anywhere on the website
         const startOnFirstGesture = () => {
             if (audio.paused) {
-                audio.play().then(() => {
-                    if (musicIcon) {
-                        musicIcon.classList.remove('fa-volume-mute');
-                        musicIcon.classList.add('fa-volume-up');
-                    }
-                }).catch(() => {});
+                playAudio().catch(() => {});
             }
         };
-        document.addEventListener('touchstart', startOnFirstGesture, { once: true, passive: true });
-        document.addEventListener('click', startOnFirstGesture, { once: true });
+
+        ['click', 'touchstart', 'pointerdown', 'keydown'].forEach(evt => {
+            document.addEventListener(evt, startOnFirstGesture, { once: true, passive: true });
+        });
     }
 
     // Ensure background video plays seamlessly
@@ -558,7 +721,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Core Submit Action
-    function handleOrderSubmission() {
+    async function handleOrderSubmission() {
         const name = (inlineStudentName ? inlineStudentName.value : '').trim();
         const phone = (inlineStudentPhone ? inlineStudentPhone.value : '').trim();
         const course = inlineCourseSelect ? inlineCourseSelect.value : 'Classic Bar';
@@ -604,11 +767,28 @@ document.addEventListener('DOMContentLoaded', () => {
             timestamp: new Date().toISOString()
         };
 
-        // Save order
-        const orders = getOrders();
-        orders.unshift(newOrder);
-        saveOrders(orders);
-        updateNavBadge();
+        // Save order to Firebase
+        if (window.fb) {
+            const btn = inlineSubmitBtn || document.querySelector('button[type="submit"]');
+            const originalText = btn ? btn.textContent : '';
+            if (btn) btn.textContent = 'Submitting...';
+            
+            try {
+                await window.fb.addDoc(window.fb.collection(window.fb.db, "orders"), newOrder);
+            } catch (e) {
+                console.error("Error adding order: ", e);
+                alert("Failed to submit order. Please try again.");
+                if (btn) btn.textContent = originalText;
+                return;
+            }
+            if (btn) btn.textContent = originalText;
+        } else {
+            // Fallback to local storage if firebase not loaded yet
+            const orders = getOrders();
+            orders.unshift(newOrder);
+            saveOrders(orders);
+            updateNavBadge();
+        }
 
         // Update Success Ticket
         const tId = document.getElementById('ticket-order-id');
@@ -901,9 +1081,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const telUrl = `tel:${(order.phone || '').replace(/\s+/g, '')}`;
             const statusClass = (order.status || 'Pending').toLowerCase();
             const courseIcon = order.course === 'Classic Bar'
-                ? '<i class="fas fa-cocktail icon-orange"></i>'
+                ? '<i class="fas fa-cocktail icon-bronze"></i>'
                 : (order.course === 'Extra Barman'
-                    ? '<i class="fas fa-wine-glass-alt icon-blue"></i>'
+                    ? '<i class="fas fa-wine-glass-alt icon-silver"></i>'
                     : '<i class="fas fa-crown icon-gold"></i>');
 
             return `
@@ -956,21 +1136,29 @@ document.addEventListener('DOMContentLoaded', () => {
     // 5. ADMIN TABS & LIVE MEDIA & CONTENT MANAGER
     // ---------------------------------------------------------------------
     const tabBtnOrders = document.getElementById('tab-btn-orders');
+    const tabBtnGallery = document.getElementById('tab-btn-gallery');
     const tabBtnMedia = document.getElementById('tab-btn-media');
     const tabPaneOrders = document.getElementById('admin-tab-orders');
+    const tabPaneGallery = document.getElementById('admin-tab-gallery');
     const tabPaneMedia = document.getElementById('admin-tab-media');
 
+    const allTabBtns = [tabBtnOrders, tabBtnGallery, tabBtnMedia];
+    const allTabPanes = [tabPaneOrders, tabPaneGallery, tabPaneMedia];
+
     function switchAdminTab(targetTab) {
+        allTabBtns.forEach(b => { if (b) b.classList.remove('active'); });
+        allTabPanes.forEach(p => { if (p) p.style.display = 'none'; });
+
         if (targetTab === 'orders') {
             if (tabBtnOrders) tabBtnOrders.classList.add('active');
-            if (tabBtnMedia) tabBtnMedia.classList.remove('active');
             if (tabPaneOrders) tabPaneOrders.style.display = 'block';
-            if (tabPaneMedia) tabPaneMedia.style.display = 'none';
+        } else if (targetTab === 'gallery') {
+            if (tabBtnGallery) tabBtnGallery.classList.add('active');
+            if (tabPaneGallery) tabPaneGallery.style.display = 'flex';
+            renderAllAdminGalleries();
         } else {
             if (tabBtnMedia) tabBtnMedia.classList.add('active');
-            if (tabBtnOrders) tabBtnOrders.classList.remove('active');
             if (tabPaneMedia) tabPaneMedia.style.display = 'flex';
-            if (tabPaneOrders) tabPaneOrders.style.display = 'none';
 
             // Sync current media into inputs and preview boxes
             const currentMedia = getSiteMedia();
@@ -989,6 +1177,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (tabBtnOrders) tabBtnOrders.addEventListener('click', () => switchAdminTab('orders'));
+    if (tabBtnGallery) tabBtnGallery.addEventListener('click', () => switchAdminTab('gallery'));
     if (tabBtnMedia) tabBtnMedia.addEventListener('click', () => switchAdminTab('media'));
 
     // File inputs & URL listeners
@@ -1075,12 +1264,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (fileNameVideo) fileNameVideo.textContent = '';
             if (mediaTopVideoUrl) mediaTopVideoUrl.value = DEFAULT_MEDIA.topVideo;
 
-            if (currentSiteMedia.topVideo && currentSiteMedia.topVideo.startsWith('assets/uploads/')) {
-                fetch('/api/delete-file', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ path: currentSiteMedia.topVideo })
-                }).catch(() => {});
+            if (currentSiteMedia.topVideo) {
+                if (currentSiteMedia.topVideo.includes('firebasestorage.googleapis.com') && window.fb) {
+                    try {
+                        const storageRef = window.fb.ref(window.fb.storage, currentSiteMedia.topVideo);
+                        window.fb.deleteObject(storageRef).catch(e => console.log('Could not delete video', e));
+                    } catch(e) {}
+                } else if (currentSiteMedia.topVideo.startsWith('assets/uploads/')) {
+                    fetch('/api/delete-file', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ path: currentSiteMedia.topVideo })
+                    }).catch(() => {});
+                }
             }
 
             await idbDelete('mediaStore', 'video_blob');
@@ -1088,11 +1284,9 @@ document.addEventListener('DOMContentLoaded', () => {
             await applySiteMedia();
 
             try {
-                await fetch('/api/media', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(currentSiteMedia)
-                });
+                if (window.fb) {
+                    await window.fb.setDoc(window.fb.doc(window.fb.db, "settings", "media"), currentSiteMedia, { merge: true });
+                }
                 await idbSet('mediaStore', 'active_media', currentSiteMedia);
                 localStorage.setItem(MEDIA_STORAGE_KEY, JSON.stringify(currentSiteMedia));
             } catch (e) {}
@@ -1115,12 +1309,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (mediaC1Url) mediaC1Url.value = DEFAULT_MEDIA.course1Img;
             if (previewC1Img) previewC1Img.src = DEFAULT_MEDIA.course1Img;
 
-            if (currentSiteMedia.course1Img && currentSiteMedia.course1Img.startsWith('assets/uploads/')) {
-                fetch('/api/delete-file', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ path: currentSiteMedia.course1Img })
-                }).catch(() => {});
+            if (currentSiteMedia.course1Img) {
+                if (currentSiteMedia.course1Img.includes('firebasestorage.googleapis.com') && window.fb) {
+                    try {
+                        const storageRef = window.fb.ref(window.fb.storage, currentSiteMedia.course1Img);
+                        window.fb.deleteObject(storageRef).catch(e => console.log('Could not delete img', e));
+                    } catch(e) {}
+                } else if (currentSiteMedia.course1Img.startsWith('assets/uploads/')) {
+                    fetch('/api/delete-file', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ path: currentSiteMedia.course1Img })
+                    }).catch(() => {});
+                }
             }
 
             await idbDelete('mediaStore', 'c1_blob');
@@ -1128,11 +1329,9 @@ document.addEventListener('DOMContentLoaded', () => {
             await applySiteMedia();
 
             try {
-                await fetch('/api/media', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(currentSiteMedia)
-                });
+                if (window.fb) {
+                    await window.fb.setDoc(window.fb.doc(window.fb.db, "settings", "media"), currentSiteMedia, { merge: true });
+                }
                 await idbSet('mediaStore', 'active_media', currentSiteMedia);
                 localStorage.setItem(MEDIA_STORAGE_KEY, JSON.stringify(currentSiteMedia));
             } catch (e) {}
@@ -1155,12 +1354,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (mediaC2Url) mediaC2Url.value = DEFAULT_MEDIA.course2Img;
             if (previewC2Img) previewC2Img.src = DEFAULT_MEDIA.course2Img;
 
-            if (currentSiteMedia.course2Img && currentSiteMedia.course2Img.startsWith('assets/uploads/')) {
-                fetch('/api/delete-file', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ path: currentSiteMedia.course2Img })
-                }).catch(() => {});
+            if (currentSiteMedia.course2Img) {
+                if (currentSiteMedia.course2Img.includes('firebasestorage.googleapis.com') && window.fb) {
+                    try {
+                        const storageRef = window.fb.ref(window.fb.storage, currentSiteMedia.course2Img);
+                        window.fb.deleteObject(storageRef).catch(e => console.log('Could not delete img', e));
+                    } catch(e) {}
+                } else if (currentSiteMedia.course2Img.startsWith('assets/uploads/')) {
+                    fetch('/api/delete-file', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ path: currentSiteMedia.course2Img })
+                    }).catch(() => {});
+                }
             }
 
             await idbDelete('mediaStore', 'c2_blob');
@@ -1168,11 +1374,9 @@ document.addEventListener('DOMContentLoaded', () => {
             await applySiteMedia();
 
             try {
-                await fetch('/api/media', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(currentSiteMedia)
-                });
+                if (window.fb) {
+                    await window.fb.setDoc(window.fb.doc(window.fb.db, "settings", "media"), currentSiteMedia, { merge: true });
+                }
                 await idbSet('mediaStore', 'active_media', currentSiteMedia);
                 localStorage.setItem(MEDIA_STORAGE_KEY, JSON.stringify(currentSiteMedia));
             } catch (e) {}
@@ -1206,26 +1410,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // 1. Process and upload Video File
                 if (selectedVideoFile) {
-                    let uploadedUrl = null;
-                    try {
-                        const formData = new FormData();
-                        formData.append('file', selectedVideoFile, selectedVideoFile.name);
-                        const res = await fetch('/api/upload', {
-                            method: 'POST',
-                            body: formData
-                        });
-                        if (res.ok) {
-                            const json = await res.json();
-                            if (json && json.url) {
-                                uploadedUrl = json.url;
-                            }
-                        }
-                    } catch (netErr) {
-                        console.warn('Server upload failed, using IndexedDB fallback', netErr);
-                    }
-
-                    if (uploadedUrl) {
-                        newTopVideo = uploadedUrl;
+                    if (window.fb) {
+                        const storageRef = window.fb.ref(window.fb.storage, `media/${Date.now()}_${selectedVideoFile.name}`);
+                        const uploadResult = await window.fb.uploadBytes(storageRef, selectedVideoFile);
+                        newTopVideo = await window.fb.getDownloadURL(uploadResult.ref);
                     } else {
                         // IndexedDB fallback
                         await idbSet('mediaStore', 'video_blob', selectedVideoFile);
@@ -1235,27 +1423,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // 2. Process and upload Course 1 image
                 if (selectedC1File) {
-                    let uploadedUrl = null;
                     const compressed = await compressImageFile(selectedC1File);
-                    try {
-                        const formData = new FormData();
-                        formData.append('file', compressed, compressed.name);
-                        const res = await fetch('/api/upload', {
-                            method: 'POST',
-                            body: formData
-                        });
-                        if (res.ok) {
-                            const json = await res.json();
-                            if (json && json.url) {
-                                uploadedUrl = json.url;
-                            }
-                        }
-                    } catch (netErr) {
-                        console.warn('Server upload failed for C1, using IndexedDB fallback', netErr);
-                    }
-
-                    if (uploadedUrl) {
-                        newC1 = uploadedUrl;
+                    if (window.fb) {
+                        const storageRef = window.fb.ref(window.fb.storage, `media/${Date.now()}_${compressed.name}`);
+                        const uploadResult = await window.fb.uploadBytes(storageRef, compressed);
+                        newC1 = await window.fb.getDownloadURL(uploadResult.ref);
                     } else {
                         await idbSet('mediaStore', 'c1_blob', compressed);
                         newC1 = 'idb:c1_blob';
@@ -1264,27 +1436,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // 3. Process and upload Course 2 image
                 if (selectedC2File) {
-                    let uploadedUrl = null;
                     const compressed = await compressImageFile(selectedC2File);
-                    try {
-                        const formData = new FormData();
-                        formData.append('file', compressed, compressed.name);
-                        const res = await fetch('/api/upload', {
-                            method: 'POST',
-                            body: formData
-                        });
-                        if (res.ok) {
-                            const json = await res.json();
-                            if (json && json.url) {
-                                uploadedUrl = json.url;
-                            }
-                        }
-                    } catch (netErr) {
-                        console.warn('Server upload failed for C2, using IndexedDB fallback', netErr);
-                    }
-
-                    if (uploadedUrl) {
-                        newC2 = uploadedUrl;
+                    if (window.fb) {
+                        const storageRef = window.fb.ref(window.fb.storage, `media/${Date.now()}_${compressed.name}`);
+                        const uploadResult = await window.fb.uploadBytes(storageRef, compressed);
+                        newC2 = await window.fb.getDownloadURL(uploadResult.ref);
                     } else {
                         await idbSet('mediaStore', 'c2_blob', compressed);
                         newC2 = 'idb:c2_blob';
@@ -1300,15 +1456,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 currentSiteMedia = updated;
 
-                // Persist to Server data/media.json
-                try {
-                    await fetch('/api/media', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(updated)
-                    });
-                } catch (e) {
-                    console.warn('Could not post to /api/media', e);
+                // Persist to Firebase Firestore
+                if (window.fb) {
+                    await window.fb.setDoc(window.fb.doc(window.fb.db, "settings", "media"), updated, { merge: true });
                 }
 
                 // Persist to IndexedDB
@@ -1359,13 +1509,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!confirm('Reset top video and course images back to original academy defaults?')) return;
             currentSiteMedia = { ...DEFAULT_MEDIA };
 
-            // Post to server
+            // Post to Firebase
             try {
-                await fetch('/api/media', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(DEFAULT_MEDIA)
-                });
+                if (window.fb) {
+                    await window.fb.setDoc(window.fb.doc(window.fb.db, "settings", "media"), DEFAULT_MEDIA, { merge: true });
+                }
             } catch (e) {}
 
             // Clear IndexedDB
@@ -1405,24 +1553,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Global Action: Update Order Status
-    window.updateOrderStatus = function(orderId, newStatus) {
+    window.updateOrderStatus = async function(orderId, newStatus) {
         const orders = getOrders();
-        const idx = orders.findIndex(o => o.id === orderId);
-        if (idx !== -1) {
-            orders[idx].status = newStatus;
-            saveOrders(orders);
-            renderAdminPanel();
+        const order = orders.find(o => o.id === orderId);
+        if (order && order.firebaseId && window.fb) {
+            const docRef = window.fb.doc(window.fb.db, "orders", order.firebaseId);
+            await window.fb.setDoc(docRef, { status: newStatus }, { merge: true });
+            // UI updates automatically via onSnapshot
         }
     };
 
     // Global Action: Delete Order
-    window.deleteOrderById = function(orderId) {
+    window.deleteOrderById = async function(orderId) {
         if (!confirm(`Delete order ${orderId}?`)) return;
-        let orders = getOrders();
-        orders = orders.filter(o => o.id !== orderId);
-        saveOrders(orders);
-        updateNavBadge();
-        renderAdminPanel();
+        const orders = getOrders();
+        const order = orders.find(o => o.id === orderId);
+        if (order && order.firebaseId && window.fb) {
+            const docRef = window.fb.doc(window.fb.db, "orders", order.firebaseId);
+            await window.fb.deleteDoc(docRef);
+            // UI updates automatically via onSnapshot
+        }
     };
 
     // Escape HTML to prevent XSS
@@ -1432,8 +1582,213 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Initial badge, media, and orders sync from database
+    // =====================================================================
+    // 6. GALLERY ADMIN UPLOAD HANDLERS
+    // =====================================================================
+    const galleryUploadClassic = document.getElementById('gallery-upload-classic');
+    const galleryUploadExtra = document.getElementById('gallery-upload-extra');
+    const gallerySaveToast = document.getElementById('gallery-save-toast');
+
+    function showGalleryToast(msg, type) {
+        if (!gallerySaveToast) return;
+        gallerySaveToast.className = `whatsapp-alert ${type || 'success'}`;
+        gallerySaveToast.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'check-circle'}"></i> ${msg}`;
+        gallerySaveToast.style.display = 'flex';
+        setTimeout(() => { gallerySaveToast.style.display = 'none'; }, 3500);
+    }
+
+    async function handleGalleryUpload(courseKey, files) {
+        const current = galleryData[courseKey] || [];
+        const maxAllowed = 20 - current.length;
+        if (maxAllowed <= 0) {
+            showGalleryToast('Maximum 20 photos reached for this course. Delete some to add new ones.', 'error');
+            return;
+        }
+
+        const filesToProcess = Array.from(files).slice(0, maxAllowed);
+        const newUrls = [];
+
+        for (const file of filesToProcess) {
+            const compressed = await compressImageFile(file, 1200, 1200, 0.82);
+            let uploadedUrl = null;
+            try {
+                if (window.fb) {
+                    const storageRef = window.fb.ref(window.fb.storage, `gallery/${courseKey}/${Date.now()}_${compressed.name}`);
+                    const uploadResult = await window.fb.uploadBytes(storageRef, compressed);
+                    uploadedUrl = await window.fb.getDownloadURL(uploadResult.ref);
+                } else {
+                    const formData = new FormData();
+                    formData.append('file', compressed, compressed.name);
+                    const res = await fetch('/api/upload', { method: 'POST', body: formData });
+                    if (res.ok) {
+                        const json = await res.json();
+                        if (json && json.url) uploadedUrl = json.url;
+                    }
+                }
+            } catch (e) {
+                console.error("Upload failed", e);
+            }
+
+            if (uploadedUrl) {
+                newUrls.push(uploadedUrl);
+            } else {
+                // Fallback: store as data URL
+                try {
+                    const dataUrl = await new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result);
+                        reader.onerror = () => resolve(null);
+                        reader.readAsDataURL(compressed);
+                    });
+                    if (dataUrl) newUrls.push(dataUrl);
+                } catch (e) {}
+            }
+        }
+
+        if (newUrls.length > 0) {
+            galleryData[courseKey] = [...current, ...newUrls];
+            saveGalleryData(galleryData);
+            renderAllPublicGalleries();
+            renderAllAdminGalleries();
+            showGalleryToast(`${newUrls.length} photo(s) uploaded successfully!`);
+        }
+    }
+
+    if (galleryUploadClassic) {
+        galleryUploadClassic.addEventListener('change', async (e) => {
+            if (e.target.files.length > 0) {
+                await handleGalleryUpload('classicBar', e.target.files);
+                galleryUploadClassic.value = '';
+            }
+        });
+    }
+
+    if (galleryUploadExtra) {
+        galleryUploadExtra.addEventListener('change', async (e) => {
+            if (e.target.files.length > 0) {
+                await handleGalleryUpload('extraBarman', e.target.files);
+                galleryUploadExtra.value = '';
+            }
+        });
+    }
+
+    // Global: Delete gallery photo
+    window.deleteGalleryPhoto = function(courseKey, idx) {
+        const photos = galleryData[courseKey] || [];
+        if (idx < 0 || idx >= photos.length) return;
+
+        const photoUrl = photos[idx];
+        // If server-hosted, delete from disk
+        if (photoUrl) {
+            if (photoUrl.includes('firebasestorage.googleapis.com') && window.fb) {
+                try {
+                    const storageRef = window.fb.ref(window.fb.storage, photoUrl);
+                    window.fb.deleteObject(storageRef).catch(e => console.log('Could not delete from Firebase Storage', e));
+                } catch(e) {}
+            } else if (photoUrl.startsWith('assets/uploads/')) {
+                fetch('/api/delete-file', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ path: photoUrl })
+                }).catch(() => {});
+            }
+        }
+
+        photos.splice(idx, 1);
+        galleryData[courseKey] = photos;
+        saveGalleryData(galleryData);
+        renderAllPublicGalleries();
+        renderAllAdminGalleries();
+        showGalleryToast('Photo deleted.');
+    };
+
+    // =====================================================================
+    // 7. FULLSCREEN LIGHTBOX
+    // =====================================================================
+    const lightboxOverlay = document.getElementById('gallery-lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxCounter = document.getElementById('lightbox-counter');
+    const lightboxCloseBtn = document.getElementById('lightbox-close');
+    const lightboxPrevBtn = document.getElementById('lightbox-prev');
+    const lightboxNextBtn = document.getElementById('lightbox-next');
+
+    let lightboxPhotos = [];
+    let lightboxIndex = 0;
+
+    window.openLightbox = function(courseKey, idx) {
+        lightboxPhotos = galleryData[courseKey] || [];
+        if (lightboxPhotos.length === 0) return;
+        lightboxIndex = idx;
+        updateLightbox();
+        if (lightboxOverlay) lightboxOverlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    };
+
+    function closeLightbox() {
+        if (lightboxOverlay) lightboxOverlay.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    function updateLightbox() {
+        if (!lightboxImg || lightboxPhotos.length === 0) return;
+        lightboxImg.src = lightboxPhotos[lightboxIndex];
+        if (lightboxCounter) lightboxCounter.textContent = `${lightboxIndex + 1} / ${lightboxPhotos.length}`;
+    }
+
+    if (lightboxCloseBtn) lightboxCloseBtn.addEventListener('click', closeLightbox);
+    if (lightboxOverlay) lightboxOverlay.addEventListener('click', (e) => {
+        if (e.target === lightboxOverlay) closeLightbox();
+    });
+
+    if (lightboxPrevBtn) lightboxPrevBtn.addEventListener('click', () => {
+        if (lightboxPhotos.length === 0) return;
+        lightboxIndex = (lightboxIndex - 1 + lightboxPhotos.length) % lightboxPhotos.length;
+        updateLightbox();
+    });
+
+    if (lightboxNextBtn) lightboxNextBtn.addEventListener('click', () => {
+        if (lightboxPhotos.length === 0) return;
+        lightboxIndex = (lightboxIndex + 1) % lightboxPhotos.length;
+        updateLightbox();
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (!lightboxOverlay || lightboxOverlay.style.display === 'none') return;
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') {
+            lightboxIndex = (lightboxIndex - 1 + lightboxPhotos.length) % lightboxPhotos.length;
+            updateLightbox();
+        }
+        if (e.key === 'ArrowRight') {
+            lightboxIndex = (lightboxIndex + 1) % lightboxPhotos.length;
+            updateLightbox();
+        }
+    });
+
+    // Swipe support for mobile lightbox
+    let touchStartX = 0;
+    if (lightboxOverlay) {
+        lightboxOverlay.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        lightboxOverlay.addEventListener('touchend', (e) => {
+            const diff = e.changedTouches[0].screenX - touchStartX;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) {
+                    lightboxIndex = (lightboxIndex - 1 + lightboxPhotos.length) % lightboxPhotos.length;
+                } else {
+                    lightboxIndex = (lightboxIndex + 1) % lightboxPhotos.length;
+                }
+                updateLightbox();
+            }
+        }, { passive: true });
+    }
+
+    // Initial badge, media, gallery, and orders sync from database
     updateNavBadge();
     initSiteMedia();
+    initGallery();
     syncOrdersFromDatabase();
 
     window.addEventListener('orders_updated', () => {
@@ -1447,6 +1802,8 @@ document.addEventListener('DOMContentLoaded', () => {
         updateNavBadge();
         renderAdminPanel();
         applySiteMedia();
+        galleryData = getGalleryData();
+        renderAllPublicGalleries();
     });
 });
 
